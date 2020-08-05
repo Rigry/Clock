@@ -1,0 +1,5 @@
+build/*
+!/build/Clock.bin
+!/build/Clock.hex
+.vscode/ipch
+core
