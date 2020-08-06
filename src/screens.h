@@ -2,6 +2,8 @@
 
 #include "screen_common.h"
 #include "timers.h"
+// #include "limited_int.h"
+#include <tuple>
 #include <array>
 #include <bitset>
 
@@ -61,14 +63,27 @@ struct Main_screen : Screen {
    }
 };
 
+template<class Int = size_t>
+class Limited_int {
+    Int value  {0};
+    size_t min {0};
+    size_t max {0};
+public:
+    Limited_int(size_t min, size_t max) : min{min}, max{max}{}
+    inline Int operator++(int)   { return value = (value++ < max) ? value : min; }
+    inline Int operator--(int)   { return value = (value-- > min) ? value : max; }
+    inline operator Int() const  { return value; }
+    inline Int operator= (Int v) { return value = v; }
+};
+
 struct Date {
-  uint16_t year = 20;
-  uint16_t month = 1;     
-  uint16_t date = 1;   
-  uint16_t hour = 5;
-  uint16_t minute = 0; 
-  uint16_t second = 0;
-  uint16_t day = 1; 
+  Limited_int<uint16_t> year  {0,99};
+  Limited_int<uint16_t> month {1,12};     
+  Limited_int<uint16_t> date  {1,31};   
+  Limited_int<uint16_t> hour  {1,23};
+  Limited_int<uint16_t> minute{0,59}; 
+  Limited_int<uint16_t> second{0,59};
+  Limited_int<uint16_t> day   {1,7};
 };
 
 using Exit_callback = Construct_wrapper<Callback<bool>>;
@@ -84,7 +99,7 @@ struct Time_screen : Screen {
     bool blink_{false};
     union {
       Date date_struct;
-      std::array<uint16_t, 5> date;
+      std::array<Limited_int<uint16_t>, 6> date;
     };
 
     Time_screen (
@@ -158,5 +173,3 @@ private:
   }
 
 };
-
-
