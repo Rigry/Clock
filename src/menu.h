@@ -56,7 +56,7 @@ struct Menu : TickSubscriber {
    Select_screen<2> main_select {
           lcd, buttons_events
         , Out_callback          { [this]{change_screen(main_screen)   ;}}
-        , Line {"Настройка"      ,[this]{change_screen(time_screen);}}
+        , Line {"Настройка"      ,[this]{change_screen(time_screen); time_screen.reset();}}
         , Line {"Будильник"      ,[this]{/*change_screen(alarm_screen)*/  ;}}
 
    };

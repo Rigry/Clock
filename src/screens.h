@@ -63,27 +63,26 @@ struct Main_screen : Screen {
    }
 };
 
-template<class Int = size_t>
 class Limited_int {
-    Int value  {0};
+    uint16_t value  {0};
     size_t min {0};
     size_t max {0};
 public:
     Limited_int(size_t min, size_t max) : min{min}, max{max}{}
-    inline Int operator++(int)   { return value = (value++ < max) ? value : min; }
-    inline Int operator--(int)   { return value = (value-- > min) ? value : max; }
-    inline operator Int() const  { return value; }
-    inline Int operator= (Int v) { return value = v; }
+    inline uint16_t operator++(int)   { return value = (value++ < max) ? value : min; }
+    inline uint16_t operator--(int)   { return value = (value-- > min) ? value : max; }
+    inline operator uint16_t() const  { return value; }
+    inline uint16_t operator= (uint16_t v) { return value = v; }
 };
 
 struct Date {
-  Limited_int<uint16_t> year  {0,99};
-  Limited_int<uint16_t> month {1,12};     
-  Limited_int<uint16_t> date  {1,31};   
-  Limited_int<uint16_t> hour  {1,23};
-  Limited_int<uint16_t> minute{0,59}; 
-  Limited_int<uint16_t> second{0,59};
-  Limited_int<uint16_t> day   {1,7};
+  Limited_int year  {0,99};
+  Limited_int month {1,12};     
+  Limited_int date  {1,31};   
+  Limited_int hour  {1,23};
+  Limited_int minute{0,59}; 
+  Limited_int second{0,59};
+  Limited_int day   {1,7};
 };
 
 using Exit_callback = Construct_wrapper<Callback<bool>>;
@@ -99,7 +98,7 @@ struct Time_screen : Screen {
     bool blink_{false};
     union {
       Date date_struct;
-      std::array<Limited_int<uint16_t>, 6> date;
+      std::array<Limited_int, 6> date;
     };
 
     Time_screen (
@@ -142,6 +141,18 @@ struct Time_screen : Screen {
     void draw() override {
       blink_ ^= blink.event();
       blink_ ? lcd.line(line).cursor(cursor)._10(date[index]) : lcd.line(line).cursor(cursor) << "  ";
+
+      if (line == 0 and cursor != 4)  lcd.line(0).cursor( 4)._10(date_struct.hour);
+      if (line == 0 and cursor != 7)  lcd.line(0).cursor( 7)._10(date_struct.minute);
+      if (line == 0 and cursor != 10) lcd.line(0).cursor(10)._10(date_struct.second);
+      if (line == 0 and cursor == 4)  lcd.line(1).cursor( 4)._10(date_struct.date);
+      if (line == 1 and cursor != 7)  lcd.line(1).cursor( 7)._10(date_struct.month);
+      if (line == 1 and cursor != 10) lcd.line(1).cursor(10)._10(date_struct.year);
+    }
+
+    void reset()
+    {
+      line = 1; cursor = 10; index = 0;
     }
 
 private:
